@@ -26,7 +26,7 @@ planned enhancement. TS2's share of it:
 | --- | --- |
 | Widescreen | Done: the in-game camera is widened where it is built (`ts2_camera_setup` in `src/recomp_manual.c`), and the front end and HUD are placed by call site (each release's `k_ts2_ui_places`, in `config/<region>/overrides.inc`). Every screen is laid out for 16:9 |
 | Frame rate above 60 | Done by presenting above it: the toolkit's frame interpolation (`frame_interp`) draws the in-between frames while logic stays at 60. TS2 names its matrix registers (c60 projection, c64-c75) at its first present (`ts2_present` in `src/recomp_manual.c`). Leftovers are in `docs/enhancements.md` |
-| Online play | TS2 has System Link (LAN) and no Xbox Live. Done on Windows: the toolkit emulates the network card and hosts sessions over a LAN or the internet, and TS2 needed one seed (`0x0009D530`, PAL). USA needed one more (`0x0009D4F0`) and has been checked on one PC. macOS waits on the toolkit's card. `docs/multiplayer.md` |
+| Online play | TS2 has System Link (LAN) and no Xbox Live. Done: the toolkit emulates the network card and hosts sessions over a LAN or the internet, on Windows, macOS and Linux, and between them (Nov 2026: Mac and Linux each joined a Windows host and held a match). TS2 needed one seed for PAL (`0x0009D530`) and two for USA (`0x0009D4F0` opening the menu, `0x000D0DD0` the joiner's match load). Run test copies with stderr to a file, never a pipe (xboxrecomp `docs/technical/system-link.md`). `docs/multiplayer.md` |
 | Mods | Assets are in `data/*.pak`. Naming dumped textures by pak entry is this repo's job; the dump and replace is the toolkit's. Characters a mod adds (PAL): `ts2/characters.ini` in the mod, read by `src/recomp_manual.c`, into 32 spare roster slots that `config/pal/xbe_patches.json` makes; `tools/ts2kitbash.py` builds one from a recipe (`docs/formats/roster.md`, "Adding a character (mods)"). Mods stack (`RECOMP_MODS=a:b`): loose files from inside the paks (`files/`, `paks/<pak>/`) are served at run time from every mod (`ts2_paks_*`, hooked where a pak is mounted and read) and every `characters.ini` is merged; `docs/modding.md` |
 | Cutscene skip | In-engine cutscenes: find where they start and whether the game already has a skip |
 
@@ -88,15 +88,14 @@ stays the default on Windows.
 
 macOS (Oct 2026): the PAL release builds natively on Apple Silicon (Vulkan
 through MoltenVK) and a scripted run plays to Siberia at 60 fps with no
-unresolved indirect calls. System Link is Windows-only: the toolkit's network
-card is not built off Windows yet.
+unresolved indirect calls. System Link works there too (Nov 2026; `docs/multiplayer.md`).
 
 Linux (Oct 2026, toolkit and this repo on `feat/linux`): the PAL release
 builds on x86-64 Linux (on SteamOS inside the Freedesktop SDK Flatpak, whose
 binaries also run on SteamOS itself), and a scripted run plays to Siberia at
 60 fps with sound, on Wayland with RADV; the launcher works. On Linux
 `build.py` refuses to build without DXC (`xboxrecomp/tools/linux/fetch_dxc.sh`),
-since without it the game has no picture. System Link is not built there yet,
+since without it the game has no picture. System Link works there too (Nov 2026, in WSL),
 and Game Mode (gamescope) is untried.
 
 One open issue: in one run out of two or three, the game has exited with code
