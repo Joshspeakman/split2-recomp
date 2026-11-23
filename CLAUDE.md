@@ -26,7 +26,7 @@ planned enhancement. TS2's share of it:
 | --- | --- |
 | Widescreen | Done: the in-game camera is widened where it is built (`ts2_camera_setup` in `src/recomp_manual.c`), and the front end and HUD are placed by call site (each release's `k_ts2_ui_places`, in `config/<region>/overrides.inc`). Every screen is laid out for 16:9 |
 | Frame rate above 60 | Done by presenting above it: the toolkit's frame interpolation (`frame_interp`) draws the in-between frames while logic stays at 60. TS2 names its matrix registers (c60 projection, c64-c75) at its first present (`ts2_present` in `src/recomp_manual.c`). Leftovers are in `docs/enhancements.md` |
-| Online play | TS2 has System Link (LAN) and no Xbox Live. Done on Windows: the toolkit emulates the network card and hosts sessions over a LAN or the internet, and TS2 needed one seed (`0x0009D530`, PAL). macOS waits on the toolkit's card; USA is untried. `docs/multiplayer.md` |
+| Online play | TS2 has System Link (LAN) and no Xbox Live. Done on Windows: the toolkit emulates the network card and hosts sessions over a LAN or the internet, and TS2 needed one seed (`0x0009D530`, PAL). USA needed one more (`0x0009D4F0`) and has been checked on one PC. macOS waits on the toolkit's card. `docs/multiplayer.md` |
 | Mods | Assets are in `data/*.pak`. Naming dumped textures by pak entry is this repo's job; the dump and replace is the toolkit's. Characters a mod adds (PAL): `ts2/characters.ini` in the mod, read by `src/recomp_manual.c`, into 32 spare roster slots that `config/pal/xbe_patches.json` makes; `tools/ts2kitbash.py` builds one from a recipe (`docs/formats/roster.md`, "Adding a character (mods)"). Mods stack (`RECOMP_MODS=a:b`): loose files from inside the paks (`files/`, `paks/<pak>/`) are served at run time from every mod (`ts2_paks_*`, hooked where a pak is mounted and read) and every `characters.ini` is merged; `docs/modding.md` |
 | Cutscene skip | In-engine cutscenes: find where they start and whether the game already has a skip |
 
@@ -75,8 +75,16 @@ a profile and plays the start of Siberia (picks up a weapon, opens the pause
 menu) at 60 fps with no unresolved indirect calls. Every PAL override is ported
 (`config/us/overrides.inc`), and widescreen (camera, 71 of the 93 placement
 sites seen drawing) and frame interpolation were checked in captures. It has
-not been played by hand yet, nor past the start of Siberia, and System Link
-has not been opened in it.
+not been played by hand yet, nor past the start of Siberia. System Link (Nov
+2026) needed one seed, `0x0009D4F0` (PAL's `0x0009D530`, 0x40 lower); with it,
+two copies on one PC host and join a Deathmatch (`docs/multiplayer.md`).
+
+Windows the Linux way (Nov 2026): zig 0.17 (`x86_64-windows-gnu`, the
+toolchain `xboxrecomp/tools/release/fetch_toolchain.py` fetches) with Ninja
+builds and plays, `CMAKE_GENERATOR=Ninja` makes `build.py` use
+`build/<Config>/`, and with the Windows DXC drop in `xboxrecomp/third_party/dxc`
+the Vulkan renderer builds there too (`RECOMP_D3D8_BACKEND=vulkan`). Direct3D 11
+stays the default on Windows.
 
 macOS (Oct 2026): the PAL release builds natively on Apple Silicon (Vulkan
 through MoltenVK) and a scripted run plays to Siberia at 60 fps with no
